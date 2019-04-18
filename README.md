@@ -1,3 +1,3 @@
-# ps_8
+# Shotspotter
 
-Problem Set 8 by Nicholas Dow and Will Smiles
+A shiny app that explores data from Shotspotter, by Nicholas Dow and Will Smiles
