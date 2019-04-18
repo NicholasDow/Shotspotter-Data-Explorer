@@ -1,4 +1,9 @@
 library(tidyverse)
+library(tidycensus)
+library(mapview)
+library(sf)
+library(leaflet)
+api_key <- "ad6d908d59b8fd6b7cd711901f628f9060feb972"
 
 palm_beach <- read_csv("http://justicetechlab.org/wp-content/uploads/2019/04/palmbeachcounty_fl.csv",
                        cols_types = cols(
