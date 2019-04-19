@@ -15,12 +15,13 @@ shapes <- raw_shapes %>%
 
 # do this manipulation in the app
 Goldsboro_locations <- st_as_sf(Goldsboro, 
-                                 coords = c("longitude", "latitude"), 
-                                 crs = 4326)
+                                coords = c("longitude", "latitude"), 
+                                crs = 4326)
 
-write_rds(Goldsboro, "Goldsboro.rds")
-write_rds(shapes, "shapes.rds") 
+write_rds(Goldsboro, "Shotspotter/Goldsboro.rds")
+write_rds(shapes, "Shotspotter/shapes.rds") 
 
 
 
-shapes %>% ggplot() + geom_sf() + geom_sf(data = Goldsboro_locations)
+shapes %>% ggplot() + geom_sf() + geom_sf(data = Goldsboro_locations) 
+

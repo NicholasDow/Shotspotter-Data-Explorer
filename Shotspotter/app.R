@@ -8,17 +8,23 @@
 #
 
 library(shiny)
+library(tidyverse)
+library(tidycensus)
+library(mapview)
+library(sf)
+library(leaflet)
+library(tigris)
+Goldsboro <- read_rds("Goldsboro.rds")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-   
    # Application title
    titlePanel(""),
    
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-         sliderInput("bins",
+         checkboxInput("Type ",
                      "Number of bins:",
                      min = 1,
                      max = 50,
