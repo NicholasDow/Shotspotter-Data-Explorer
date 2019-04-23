@@ -25,7 +25,7 @@ months <- Goldsboro %>% distinct(month)
 
 ui <- dashboardPage(
   skin = "red",
-  dashboardHeader(title = "Goldsboro Shootings"),
+  dashboardHeader(title = "Goldsboro North Carolina Shootings 2016-2019", titleWidth = 470),
   dashboardSidebar(
     sliderInput(
       inputId = "year_shot",
@@ -45,7 +45,9 @@ ui <- dashboardPage(
       value = c(min(months$month), min(months$month)+3),
       sep = "",
       step = 1,
-      animate = animationOptions(interval = 1500, loop = TRUE)
+      animate = animationOptions(interval = 1500, loop = TRUE),
+
+    
     ),
     
     checkboxGroupInput(inputId = "type", 
@@ -55,7 +57,12 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
-    leafletOutput("maps", height = 680)
+    leafletOutput("maps", height = 500),
+    h3("Source: Justice Tech Lab"),
+    p("We would not have been able to complete this app without the use of data from the Justice Tech Lab, which was kind enough to share data on the locations of shootings that they had detected using the Shotspotter network"),
+    p(" You can find their data here: "),
+    a("http://justicetechlab.org/shotspotter-data/")
+    
   )
 )
 server <- function(input, output, session){
