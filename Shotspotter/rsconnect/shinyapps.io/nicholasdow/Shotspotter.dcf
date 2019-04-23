@@ -5,8 +5,8 @@ account: nicholasdow
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 883616
-bundleId: 2031549
+bundleId: 2031584
 url: https://nicholasdow.shinyapps.io/Shotspotter/
-when: 1555992559.20343
+when: 1555994259.78849
 asMultiple: FALSE
 asStatic: FALSE

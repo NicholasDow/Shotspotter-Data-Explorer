@@ -16,7 +16,7 @@ library(lubridate)
 
 
 Goldsboro <- read_csv("http://justicetechlab.org/wp-content/uploads/2019/04/goldsboro_nc.csv") %>% 
-  mutate(type = str_replace(string = type,pattern = "_", replacement = " ")) %>% 
+  mutate(type = str_replace_all(string = type,pattern = "_", replacement = " ")) %>% 
   mutate(written_month = month.abb[month])
 
 type_shot <- Goldsboro %>% distinct(type)
@@ -25,7 +25,7 @@ months <- Goldsboro %>% distinct(month)
 
 ui <- dashboardPage(
   skin = "red",
-  dashboardHeader(title = "Goldsboro North Carolina Shootings 2016-2019", titleWidth = 470),
+  dashboardHeader(title = "Goldsboro NC Shootings", titleWidth = 400),
   dashboardSidebar(
     sliderInput(
       inputId = "year_shot",
