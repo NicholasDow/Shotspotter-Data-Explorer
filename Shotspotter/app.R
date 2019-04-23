@@ -8,65 +8,90 @@
 #
 
 library(shiny)
+library(shinydashboard)
 library(tidyverse)
-library(tidycensus)
-library(mapview)
-library(sf)
+library(rgdal)
 library(leaflet)
-library(tigris)
-api_key <- "ad6d908d59b8fd6b7cd711901f628f9060feb972"
-census_api_key(api_key)
-Goldsboro <- read_csv("http://justicetechlab.org/wp-content/uploads/2019/04/goldsboro_nc.csv")
-raw_shapes <- urban_areas(class = "sf")
+library(lubridate)
 
-shapes <- raw_shapes %>% 
-  filter(NAME10 == "Goldsboro, NC")
 
-# do this manipulation in the app
-
+Goldsboro <- read_csv("http://justicetechlab.org/wp-content/uploads/2019/04/goldsboro_nc.csv") %>% 
+  mutate(type = str_replace(string = type,pattern = "_", replacement = " ")) %>% 
+  mutate(written_month = month.abb[month])
 
 type_shot <- Goldsboro %>% distinct(type)
+years <- Goldsboro %>% distinct(year)
+months <- Goldsboro %>% distinct(month)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-   # Application title
-   titlePanel("Mapping type of shot in Goldsboro 2018<- I dont know if that is right"),
-   
-   # Sidebar with a slider input for number of bins 
-   sidebarLayout(
-      sidebarPanel(
-        checkboxGroupInput(inputId = "type_gun", 
-                    choices = type_shot$type,
-                    label = "Type of Shot Spotted", 
-                    selected = type_shot$type[[1]]),
-        checkboxGroupInput(inputId = "year",
-                    label = "years", 
-                    choices = c(2016,2017,2018,2019),
-                    selected = 2016)),
-      mainPanel(
-         plotOutput("distPlot")
-      )
-   )
+ui <- dashboardPage(
+  skin = "red",
+  dashboardHeader(title = "Goldsboro Shootings"),
+  dashboardSidebar(
+    sliderInput(
+      inputId = "year_shot",
+      label = "Year of Shooting",
+      min = min(years$year),
+      max = max(years$year),
+      value = c(min(years$year), max(years$year)-2),
+      sep = "",
+      step = 1,
+      animate = animationOptions(interval = 1200, loop = TRUE)),
+    
+    sliderInput(
+      inputId = "month_shot",
+      label = "Month of Shooting",
+      min = min(months$month),
+      max = max(months$month),
+      value = c(min(months$month), min(months$month)+3),
+      sep = "",
+      step = 1,
+      animate = animationOptions(interval = 1500, loop = TRUE)
+    ),
+    
+    checkboxGroupInput(inputId = "type", 
+                 label = "Type of Shot", 
+                 choices = type_shot$type, 
+                 selected = type_shot$type[1]
+    )
+  ),
+  dashboardBody(
+    leafletOutput("maps", height = 680)
+  )
 )
-
-# Define server logic required to draw a histogram
-server <- function(input, output) {
-   
-   output$distPlot <- renderPlot({ 
-     show <- Goldsboro %>% 
-       filter(type == input$type_gun) %>% 
-       filter(year == input$year)
-     
-     Goldsboro_locations <- st_as_sf(show, 
-                                     coords = c("longitude", "latitude"), 
-                                     crs = 4326)
-     shapes %>% 
-       ggplot() + 
-       geom_sf()+ 
-       geom_sf(data = Goldsboro_locations, mapping = aes(color = type)) +
-       ggtitle("Type of shot in the year", input$year)
-   })
+server <- function(input, output, session){
+  data <- reactive({
+    if (length(input$type) == 0) {
+      x <- Goldsboro %>%
+        filter(year >= input$year_shot[1]) %>% 
+        filter(year <= input$year_shot[2]) %>% 
+        filter(month >= input$month_shot[1]) %>% 
+        filter(month <= input$month_shot[2])
+    } else {
+      x <- Goldsboro %>%
+        filter(year >= input$year_shot[1]) %>% 
+        filter(year <= input$year_shot[2]) %>% 
+        filter(month >= input$month_shot[1]) %>% 
+        filter(month <= input$month_shot[2]) %>% 
+        filter(type == input$type)
+    }
+  })
+  output$maps <- renderLeaflet({
+    Goldsboro <- data()
+    map_of_G <- leaflet(data = Goldsboro) %>% 
+      addTiles() %>% 
+      setView(lat = 35.384710, lng = -77.992573, zoom = 13) %>% 
+      addMarkers(lng = ~longitude,
+                 lat = ~latitude,
+                 popup = paste("Type of Crime: ", Goldsboro$type, "<br>",
+                               "Year:", Goldsboro$year, "<br>", 
+                               "Month:", Goldsboro$written_month, "<br>",
+                               "Address:", Goldsboro$address))
+    map_of_G
+  })
+  
 }
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
